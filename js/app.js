@@ -1,6 +1,32 @@
 
+/* VARIABLES */
 
-let eleccion = parseInt(
+const inputNombre = document.querySelector("#inputNombre")
+const btnGuardar = document.querySelector("#btnGuardar")
+const mainContent = document.querySelector("#mainContent")
+const h2Saludo = document.createElement("H2")
+
+
+
+
+
+/* EVENTOS */
+btnGuardar.addEventListener("click", guardarDatos )
+ 
+
+
+
+
+
+/* FUNCIONES */
+function guardarDatos() {
+h2Saludo.textContent = `Hola maestro Pokemon ${inputNombre.value}`  
+mainContent.appendChild(h2Saludo)
+localStorage.setItem("username",inputNombre.value)
+}
+
+
+/* let eleccion = parseInt(
   prompt(
     "Digita el numero correspondiente a tu eleccion de tipo de pokemon: \n1: Agua\n2: Planta\n3: Fuego"
   )
@@ -130,7 +156,7 @@ switch (eleccion) {
     document.write("no hay pokemon disponible de ese tipo");
     break;
 
-}  
+}   */
 
 
 
