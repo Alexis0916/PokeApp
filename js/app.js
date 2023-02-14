@@ -2,12 +2,16 @@
 let eleccion;
 let pokemon1 = "Squirtle";
 let pokemon2 = "Bulbasaur";
-let pokemon3 = "Chanmander";
+let pokemon3 = "Charmander";
 let tipopokemon;
 let poke;
 let peleas;
 let powers;
 let resultadoFinal;
+let eleccionapi;
+let imgpokeapi;
+
+
 //Arrays
 const firePowers = [
   "Bola De Fuego",
@@ -69,7 +73,6 @@ divElegir.appendChild(buttonElegir);
 const divResultado = document.createElement("DIV");
 divResultado.setAttribute("id", `divResultado`);
 
-
 /* EVENTOS */
 /* EVENTO SELECCION DE TIPO */
 btnGuardar.addEventListener("click", guardarNombre);
@@ -88,18 +91,24 @@ function guardarNombre() {
   mainContent.appendChild(divElegir);
 }
 
-function elegirTipo() {
-  eleccion = parseInt(selectElegir.value);
-  console.log(eleccion);
-  if (eleccion === 1) {
-    poke = pokemon1;
-    tipopokemon = "Agua";
-  } else if (eleccion === 2) {
-    poke = pokemon2;
-    tipopokemon = "Planta";
-  } else if (eleccion === 3) {
-    poke = pokemon3;
-    tipopokemon = "Fuego";
+async function elegirTipo() {
+
+    eleccion = parseInt(selectElegir.value);
+    if (eleccion === 1) {
+      poke = pokemon1;
+      tipopokemon = "Agua";
+      eleccionapi = await getDataFetch(pokemon1) 
+      imgpokeapi = eleccionapi.sprites.front_default;
+    } else if (eleccion === 2) {
+      poke = pokemon2;
+      tipopokemon = "Planta";
+      eleccionapi = await getDataFetch(pokemon2)
+      imgpokeapi = eleccionapi.sprites.front_default;
+    } else if (eleccion === 3) {
+      poke = pokemon3;
+      tipopokemon = "Fuego";
+      eleccionapi = await getDataFetch(pokemon3)
+      imgpokeapi = eleccionapi.sprites.front_default;
   }
 
   const divmensaje1 = document.createElement("DIV");
@@ -109,8 +118,18 @@ function elegirTipo() {
   const tipomsg1 = document.createElement("P");
   tipomsg1.setAttribute("class", "tipomsg1");
   tipomsg1.textContent = `El pokemon que seleccionaste de tipo: ${tipopokemon} es: ${poke}`;
-
   divmensaje1.appendChild(tipomsg1);
+
+  const divImg = document.createElement("DIV");
+  divImg.setAttribute("id", "divImg");
+  mainContent.appendChild(divImg);
+
+  const imgpoke = document.createElement("IMG");
+  imgpoke.setAttribute("id", "imgpoke");
+  imgpoke.setAttribute("src", imgpokeapi);
+  divImg.appendChild(imgpoke);
+
+  console.log("imgpoke", imgpokeapi);
 
   divElegir.style.display = "none";
 
@@ -124,9 +143,12 @@ function elegirTipo() {
   divbutton1.appendChild(button1);
 
   button1.addEventListener("click", tipomsg2);
+
+  
 }
 
 function tipomsg2() {
+  console.log("eleccionapi", eleccionapi);
   const divmensaje2 = document.createElement("DIV");
   divmensaje2.setAttribute("id", "divmensaje2");
   mainContent.appendChild(divmensaje2);
@@ -208,31 +230,26 @@ function pedirBatallas() {
   buttonBatallas.addEventListener("click", aleatorio);
 }
 
-
-
 function aleatorio() {
   peleas = inputBatallas.value;
   let result;
 
+  mainContent.appendChild(divResultado);
+  limpiarHtml(divResultado);
 
-      mainContent.appendChild(divResultado);
-      limpiarHtml(divResultado)
-
-
-      for (let index = 0; index < peleas; index++) {
-        result = resultBatalla();
-        switch (result) {
-          case 1:
-            imprimirPantalla(index, 'Gano')
-            console.log("Gano");
-            break;
-          case 2:
-            imprimirPantalla(index, 'Perdio')
-            console.log("Perdio");
-            break;
-        }
-      }
-
+  for (let index = 0; index < peleas; index++) {
+    result = resultBatalla();
+    switch (result) {
+      case 1:
+        imprimirPantalla(index, "Gano");
+        console.log("Gano");
+        break;
+      case 2:
+        imprimirPantalla(index, "Perdio");
+        console.log("Perdio");
+        break;
+    }
+  }
 }
 
 function resultBatalla() {
@@ -240,23 +257,14 @@ function resultBatalla() {
   return result;
 }
 
-
-
-function imprimirPantalla(index, resultado){
-
-
-
+function imprimirPantalla(index, resultado) {
   const pBattle = document.createElement("P");
   pBattle.setAttribute("id", `pBattle${index}`);
-  pBattle.textContent = `Tu  ${inputNombrePoke.value}  ha  ${resultado} la batalla numero ${index + 1}`;
+  pBattle.textContent = `Tu  ${
+    inputNombrePoke.value
+  }  ha  ${resultado} la batalla numero ${index + 1}`;
   divResultado.appendChild(pBattle);
-
-  
 }
-
-
-
-
 
 //!Funcion para extraer un aleatorio de un array
 function shuffleArray(array) {
@@ -275,4 +283,14 @@ function limpiarHtml(elem) {
   while (elem.firstChild) {
     elem.removeChild(elem.firstChild);
   }
+}
+
+async function getDataFetch(namePokemon) {
+  const fetchData = fetch(`https://pokeapi.co/api/v2/pokemon/${namePokemon.toLowerCase()}`)
+    .then((response) => response.json())
+    .then((data) => {
+      return data;
+    });
+
+  return fetchData;
 }
