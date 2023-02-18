@@ -10,6 +10,8 @@ let powers;
 let resultadoFinal;
 let eleccionapi;
 let imgpokeapi;
+let userLocalStorage;
+
 
 let resumeBatles = {
   total: 0,
@@ -42,6 +44,10 @@ const pokemon = {
 const inputNombre = document.querySelector("#inputNombre");
 const btnGuardar = document.querySelector("#btnGuardar");
 const mainContent = document.querySelector("#mainContent");
+const vict = document.querySelector("#vict");
+const derr = document.querySelector("#derr");
+const total = document.querySelector("#total");
+
 
 const divElegir = document.createElement("DIV");
 divElegir.classList.add("box_container", "box_shadow_container");
@@ -85,12 +91,59 @@ divResultado.classList.add("box_container", "box_shadow_container");
 
 /* EVENTOS */
 /* EVENTO SELECCION DE TIPO */
-btnGuardar.addEventListener("click", preguntarNombre);
+document.addEventListener("DOMContentLoaded", domCargado);
+btnGuardar.addEventListener("click", () => {
+  preguntarNombre(inputNombre.value)
+});
 buttonElegir.addEventListener("click", elegirTipo);
 
 /* FUNCIONES */
-function preguntarNombre(){
-  sweetAlert(`¿Estas seguro de guardar el nombre ${inputNombre.value}?`, guardarNombre);
+
+function domCargado(){
+  console.log("DOM Cargado");
+  const resumenBatallas = JSON.parse(localStorage.getItem("resumenBatallas"));
+  if (resumenBatallas) {
+    Swal.fire({
+      title: "Oohh... Ya has jugado anteriomente",
+      text: "¿Deseas continar la partida anteriror o quieres iniciar una partida nueva?",
+      showCancelButton: true,
+      confirmButtonText: 'Continuar',
+      cancelButtonText: `Reiniciar`,
+      cancelButtonColor: '#d33',
+    }).then((result) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isConfirmed) {
+        resumeBatles = resumenBatallas;
+        vict.textContent = `${resumeBatles.wins}`;
+        derr.textContent = `${resumeBatles.loses}`;
+        total.textContent = `${resumeBatles.total}`;
+        userLocalStorage = localStorage.getItem("username");
+        preguntarNombre(userLocalStorage);
+        return;
+      }
+      localStorage.removeItem("resumenBatallas");
+      localStorage.removeItem("username");
+      
+      return;
+    })
+  }
+}
+
+function preguntarNombre(input){
+  if (validarVacio(input)){
+    sweetAlertDinamic("error", "Campo vacio", "Tu nombre de maestro pokemon no puede estar vacio")
+    return;
+  }
+
+  if (!userLocalStorage){
+    console.log("No hay usuario en el localstorage");
+    sweetAlert(`¿Estas seguro de guardar el nombre ${inputNombre.value}?`, guardarNombre);  
+    return;
+  } 
+  console.log("Si hay usuario en el localstorage");
+  console.log(userLocalStorage);
+  inputNombre.value = userLocalStorage;
+  guardarNombre()
 }
 
 function guardarNombre() {
@@ -104,7 +157,7 @@ function guardarNombre() {
 
 
   mainContent.appendChild(h2Saludo);
-  localStorage.setItem("username", JSON.stringify(inputNombre.value));
+
 
   btnGuardar.style.display = "none";
   inputNombre.setAttribute("disabled", "true");
@@ -215,7 +268,8 @@ function tipomsg2() {
   buttonNombrePoke.textContent = "Aceptar";
   divNombrePoke.appendChild(buttonNombrePoke);
 
-  buttonNombrePoke.addEventListener("click", guardarNombrePokemon);
+  buttonNombrePoke.addEventListener("click",  () => { guardarNombrePokemon(inputNombrePoke.value) }
+    );
 }
 
 /* divNombrePoke.style.display = "none" */
@@ -241,9 +295,15 @@ function asignarPowers() {
   return text;
 }
 
-function guardarNombrePokemon() {
-   sweetAlert(`Quieres confirmar ${inputNombrePoke.value} como el nombre para tu pokemon?`, pedirBatallas);
-}
+function guardarNombrePokemon(input) {
+
+    if (validarVacio(input)){
+      sweetAlertDinamic("error", "Campo vacio", "El nombre de tu pokemon no puede estar vacio")
+      return;
+    }
+  	sweetAlert(`Quieres confirmar ${inputNombrePoke.value} como el nombre para tu pokemon?`, pedirBatallas);
+  }
+
 
 function pedirBatallas() {
   const divbattle = document.createElement("DIV");
@@ -274,34 +334,53 @@ function pedirBatallas() {
   buttonBatallas.textContent = "Luchar";
   divbattle.appendChild(buttonBatallas);
 
-  buttonBatallas.addEventListener("click", aleatorio);
+  buttonBatallas.addEventListener("click",() => { 
+    aleatorio(inputBatallas.value) });
 }
 
-function aleatorio() {
-  peleas = inputBatallas.value;
-  resumeBatles.total = peleas;
 
-  console.log("resumeBatles", resumeBatles);
+
+function aleatorio(input) {
+  if (validarVacio(input)){
+    sweetAlertDinamic("error", "Campo vacio", "El numero de batallas no puede estar vacio")
+    return;
+  }
+  peleas = inputBatallas.value;
+  let peleasTotalActual = resumeBatles.total;
+  resumeBatles.total = parseInt(peleas) + peleasTotalActual;
+
+
+
+
   let result;
 
   mainContent.appendChild(divResultado);
   limpiarHtml(divResultado);
 
   for (let index = 0; index < peleas; index++) {
-    result = resultBatalla();
-    switch (result) {
-      case 1:
-        imprimirPantalla(index, "Ganado" , result);
-        resumeBatles.wins++;
-        break;
-      case 2:
-        imprimirPantalla(index, "Perdido" , result);
-        resumeBatles.loses++;
-        break;
-    }
+    setTimeout(() => {
+      result = resultBatalla();
+      switch (result) {
+        case 1:
+          imprimirPantalla(index, "Ganado" , result);
+          resumeBatles.wins++;
+          break;
+        case 2:
+          imprimirPantalla(index, "Perdido" , result);
+          resumeBatles.loses++;
+          break;
+      }
+    } , 2000 * index);
+
   }
 
   console.log("resumeBatles", resumeBatles);
+  vict.textContent = `${resumeBatles.wins}`;
+  derr.textContent = `${resumeBatles.loses}`;
+  total.textContent = `${resumeBatles.total}`;
+  guardarLocalStorage( "resumenBatallas" , resumeBatles);
+  guardarLocalStorage( "username" , inputNombre.value);
+
 }
 
 function resultBatalla() {
@@ -354,9 +433,7 @@ async function getDataFetch(namePokemon) {
   return fetchData;
 }
 
-/* title: `¿Estas seguro de guardar el nombre ${inputNombre.value}?`, */
-
-
+//! Funcion para mostrar alertas
 function sweetAlert(titulo, funcion) {
   Swal.fire({
     title: titulo,
@@ -371,4 +448,34 @@ function sweetAlert(titulo, funcion) {
     } 
     return;
   })
+}
+
+
+
+function sweetAlertDinamic(icon, title, text) {
+  Swal.fire({
+    icon: icon,
+    title: title,
+    text: text,
+  })
+}
+
+
+
+//! Funcion para guardar en el localstorage
+function guardarLocalStorage(name, data) {
+  if (typeof data === "string") {
+    localStorage.setItem(name, data);
+    return;
+  }
+  localStorage.setItem(name, JSON.stringify(data));
+}
+
+//!funcion para validar vacios
+function validarVacio(input) {
+  if (input === "") {
+    return true;
+  } else {
+    return false;
+  }
 }
