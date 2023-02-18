@@ -11,6 +11,12 @@ let resultadoFinal;
 let eleccionapi;
 let imgpokeapi;
 
+let resumeBatles = {
+  total: 0,
+  wins: 0,
+  loses: 0,
+}
+
 
 //Arrays
 const firePowers = [
@@ -38,16 +44,18 @@ const btnGuardar = document.querySelector("#btnGuardar");
 const mainContent = document.querySelector("#mainContent");
 
 const divElegir = document.createElement("DIV");
+divElegir.classList.add("box_container", "box_shadow_container");
 divElegir.setAttribute("id", "divElegir");
 
 const labelElegir = document.createElement("LABEL");
 labelElegir.setAttribute("for", "inputElegir");
-labelElegir.classList.add("labelElegir", "label");
+labelElegir.classList.add("question");
 labelElegir.textContent = "Selecciona tu tipo de pokemon preferido ";
 divElegir.appendChild(labelElegir);
 
 const selectElegir = document.createElement("SELECT");
 selectElegir.setAttribute("id", "inputElegir");
+selectElegir.classList.add("form-control" , "input_select");
 divElegir.appendChild(selectElegir);
 
 const optionElegir1 = document.createElement("OPTION");
@@ -67,21 +75,34 @@ selectElegir.appendChild(optionElegir3);
 
 const buttonElegir = document.createElement("BUTTON");
 buttonElegir.setAttribute("id", "buttonElegir");
+buttonElegir.classList.add("btn", "btn-warning", "mb-2", "mt-2");
 buttonElegir.textContent = "Elegir";
 divElegir.appendChild(buttonElegir);
 
 const divResultado = document.createElement("DIV");
 divResultado.setAttribute("id", `divResultado`);
+divResultado.classList.add("box_container", "box_shadow_container");
 
 /* EVENTOS */
 /* EVENTO SELECCION DE TIPO */
-btnGuardar.addEventListener("click", guardarNombre);
+btnGuardar.addEventListener("click", preguntarNombre);
 buttonElegir.addEventListener("click", elegirTipo);
 
 /* FUNCIONES */
+function preguntarNombre(){
+  sweetAlert(`¿Estas seguro de guardar el nombre ${inputNombre.value}?`, guardarNombre);
+}
+
 function guardarNombre() {
   const h2Saludo = document.createElement("H2");
-  h2Saludo.textContent = `Hola maestro Pokemon ${inputNombre.value}`;
+  h2Saludo.textContent = `Hola maestro Pokemon `;
+  h2Saludo.classList.add("text-center", "mt-2", "text-uppercase");
+  const spanSaludo = document.createElement("SPAN");
+  spanSaludo.textContent = inputNombre.value;
+  spanSaludo.classList.add("fw-bold");
+  h2Saludo.appendChild(spanSaludo);
+
+
   mainContent.appendChild(h2Saludo);
   localStorage.setItem("username", JSON.stringify(inputNombre.value));
 
@@ -113,20 +134,30 @@ async function elegirTipo() {
 
   const divmensaje1 = document.createElement("DIV");
   divmensaje1.setAttribute("id", "divmensaje1");
+  divmensaje1.classList.add("box_container" , "box_shadow_container");
   mainContent.appendChild(divmensaje1);
 
   const tipomsg1 = document.createElement("P");
-  tipomsg1.setAttribute("class", "tipomsg1");
-  tipomsg1.textContent = `El pokemon que seleccionaste de tipo: ${tipopokemon} es: ${poke}`;
+  tipomsg1.classList.add("text-center", "mt-2", "text-uppercase");
+  if (eleccion === 1) {
+    tipomsg1.innerHTML = `El pokemon que seleccionaste de tipo: <span class="fw-bold water_type">${tipopokemon}</span> es: <span class="fw-bold water_type">${poke}</span>`;
+  } else if (eleccion === 2) {
+    tipomsg1.innerHTML = `El pokemon que seleccionaste de tipo: <span class="fw-bold grass_type">${tipopokemon}</span> es: <span class="fw-bold grass_type">${poke}</span>`;
+  } else if (eleccion === 3) {
+    tipomsg1.innerHTML = `El pokemon que seleccionaste de tipo: <span class="fw-bold fire_type">${tipopokemon}</span> es: <span class="fw-bold fire_type">${poke}</span>`;
+  }
+
+
   divmensaje1.appendChild(tipomsg1);
 
   const divImg = document.createElement("DIV");
   divImg.setAttribute("id", "divImg");
-  mainContent.appendChild(divImg);
+  divmensaje1.appendChild(divImg);
 
   const imgpoke = document.createElement("IMG");
   imgpoke.setAttribute("id", "imgpoke");
   imgpoke.setAttribute("src", imgpokeapi);
+  imgpoke.setAttribute("width", "150px");
   divImg.appendChild(imgpoke);
 
   console.log("imgpoke", imgpokeapi);
@@ -135,11 +166,12 @@ async function elegirTipo() {
 
   const divbutton1 = document.createElement("DIV");
   divbutton1.setAttribute("id", "divbutton1");
-  mainContent.appendChild(divbutton1);
+  divmensaje1.appendChild(divbutton1);
 
   const button1 = document.createElement("BUTTON");
   button1.setAttribute("id", "button1");
   button1.textContent = "continuar";
+  button1.classList.add("btn", "btn-warning", "mb-2", "mt-2");
   divbutton1.appendChild(button1);
 
   button1.addEventListener("click", tipomsg2);
@@ -162,6 +194,7 @@ function tipomsg2() {
 
   const divNombrePoke = document.createElement("DIV");
   divNombrePoke.setAttribute("id", "divNombrePoke");
+  divNombrePoke.classList.add("box_container" , "box_shadow_container");
   mainContent.appendChild(divNombrePoke);
 
   const labelNombrePoke = document.createElement("LABEL");
@@ -172,14 +205,17 @@ function tipomsg2() {
   const inputNombrePoke = document.createElement("INPUT");
   inputNombrePoke.setAttribute("type", "text");
   inputNombrePoke.setAttribute("id", "inputNombrePoke");
+  inputNombrePoke.setAttribute("placeholder", "Nombre");
+  inputNombrePoke.classList.add("input" , "form-control");
   divNombrePoke.appendChild(inputNombrePoke);
 
   const buttonNombrePoke = document.createElement("BUTTON");
   buttonNombrePoke.setAttribute("id", "buttonNombrePoke");
+  buttonNombrePoke.classList.add("btn", "btn-warning", "mb-2", "mt-2");
   buttonNombrePoke.textContent = "Aceptar";
   divNombrePoke.appendChild(buttonNombrePoke);
 
-  buttonNombrePoke.addEventListener("click", pedirBatallas);
+  buttonNombrePoke.addEventListener("click", guardarNombrePokemon);
 }
 
 /* divNombrePoke.style.display = "none" */
@@ -205,25 +241,36 @@ function asignarPowers() {
   return text;
 }
 
+function guardarNombrePokemon() {
+   sweetAlert(`Quieres confirmar ${inputNombrePoke.value} como el nombre para tu pokemon?`, pedirBatallas);
+}
+
 function pedirBatallas() {
   const divbattle = document.createElement("DIV");
   divbattle.setAttribute("id", "divbattle");
+  divbattle.classList.add("box_container" , "box_shadow_container");
   mainContent.appendChild(divbattle);
 
   const labelBatallas = document.createElement("LABEL");
   labelBatallas.setAttribute("for", "inputBatallas");
-  labelBatallas.textContent = `¿Cuantas Batallas quieres que tu ${inputNombrePoke.value} luche ?`;
+  labelBatallas.classList.add("question");
+  labelBatallas.innerHTML = `¿Cuantas Batallas quieres que tu <span class="fw-bold">${inputNombrePoke.value}</span> luche?`;
   divbattle.appendChild(labelBatallas);
 
   divNombrePoke.style.display = "none";
 
   const inputBatallas = document.createElement("INPUT");
   inputBatallas.setAttribute("type", "number");
+  inputBatallas.setAttribute("min", "1");
+  inputBatallas.setAttribute("max", "10");
+  inputBatallas.setAttribute("placeholder", "Batallas");
+  inputBatallas.classList.add("input" , "form-control");
   inputBatallas.setAttribute("id", "inputBatallas");
   divbattle.appendChild(inputBatallas);
 
   const buttonBatallas = document.createElement("BUTTON");
   buttonBatallas.setAttribute("id", "buttonBatallas");
+  buttonBatallas.classList.add("btn", "btn-warning", "mb-2", "mt-2");
   buttonBatallas.textContent = "Luchar";
   divbattle.appendChild(buttonBatallas);
 
@@ -232,6 +279,9 @@ function pedirBatallas() {
 
 function aleatorio() {
   peleas = inputBatallas.value;
+  resumeBatles.total = peleas;
+
+  console.log("resumeBatles", resumeBatles);
   let result;
 
   mainContent.appendChild(divResultado);
@@ -241,15 +291,17 @@ function aleatorio() {
     result = resultBatalla();
     switch (result) {
       case 1:
-        imprimirPantalla(index, "Gano");
-        console.log("Gano");
+        imprimirPantalla(index, "Ganado" , result);
+        resumeBatles.wins++;
         break;
       case 2:
-        imprimirPantalla(index, "Perdio");
-        console.log("Perdio");
+        imprimirPantalla(index, "Perdido" , result);
+        resumeBatles.loses++;
         break;
     }
   }
+
+  console.log("resumeBatles", resumeBatles);
 }
 
 function resultBatalla() {
@@ -257,12 +309,19 @@ function resultBatalla() {
   return result;
 }
 
-function imprimirPantalla(index, resultado) {
+function imprimirPantalla(index, resultado, result) {
   const pBattle = document.createElement("P");
   pBattle.setAttribute("id", `pBattle${index}`);
-  pBattle.textContent = `Tu  ${
-    inputNombrePoke.value
-  }  ha  ${resultado} la batalla numero ${index + 1}`;
+  pBattle.innerHTML = `<hr><hr>
+    ${result === 1 ? "✔" : "❌"   } <br>
+    Tu <span class="fw-bold">${inputNombrePoke.value}</span> ha ${resultado} la batalla numero ${index + 1}
+  `;
+  if (result === 1) {
+    pBattle.classList.add("win");
+  } else {
+    pBattle.classList.add("lose");
+  }
+
   divResultado.appendChild(pBattle);
 }
 
@@ -293,4 +352,23 @@ async function getDataFetch(namePokemon) {
     });
 
   return fetchData;
+}
+
+/* title: `¿Estas seguro de guardar el nombre ${inputNombre.value}?`, */
+
+
+function sweetAlert(titulo, funcion) {
+  Swal.fire({
+    title: titulo,
+    showCancelButton: true,
+    confirmButtonText: 'Guardar',
+    denyButtonText: `No guardar`,
+  }).then((result) => {
+    /* Read more about isConfirmed, isDenied below */
+    if (result.isConfirmed) {
+      funcion();
+      return;
+    } 
+    return;
+  })
 }
