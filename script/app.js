@@ -12,6 +12,37 @@ let eleccionapi;
 let imgpokeapi;
 let userLocalStorage;
 
+/* variables gif */
+//! Bulbasaur
+const bulbasaurBatleImg = '/assets/gif/bulbasaur/b-fight.gif';
+const bulbasaurWinImg = '/assets/gif/bulbasaur/b-win.gif';
+const bulbasaurLoseImg = '/assets/gif/bulbasaur/b-lose.gif';
+const objBulbasaurImg = {
+  batleImg: bulbasaurBatleImg,
+  winImg: bulbasaurWinImg,
+  loseImg: bulbasaurLoseImg,
+}
+
+//! Charmander
+const charmanderBatleImg = '/assets/gif/charmander/c-figth.gif';
+const charmanderWinImg = '/assets/gif/charmander/c-win.gif';
+const charmanderLoseImg = '/assets/gif/charmander/c-lose.gif';
+const objCharmanderImg = {
+  batleImg: charmanderBatleImg,
+  winImg: charmanderWinImg,
+  loseImg: charmanderLoseImg,
+}
+
+//! Squirtle
+const squirtleBatleImg = '/assets/gif/squirtle/s-figth.gif';
+const squirtleWinImg = '/assets/gif/squirtle/s-win.gif';
+const squirtleLoseImg = '/assets/gif/squirtle/s-lose.gif';
+const objSquirtleImg = {
+  batleImg: squirtleBatleImg,
+  winImg: squirtleWinImg,
+  loseImg: squirtleLoseImg,
+}
+
 
 let resumeBatles = {
   total: 0,
@@ -88,6 +119,7 @@ divElegir.appendChild(buttonElegir);
 const divResultado = document.createElement("DIV");
 divResultado.setAttribute("id", `divResultado`);
 divResultado.classList.add("box_container", "box_shadow_container");
+divResultado.style = "padding: 30px;";
 
 /* EVENTOS */
 /* EVENTO SELECCION DE TIPO */
@@ -100,7 +132,7 @@ buttonElegir.addEventListener("click", elegirTipo);
 /* FUNCIONES */
 
 function domCargado(){
-  console.log("DOM Cargado");
+
   const resumenBatallas = JSON.parse(localStorage.getItem("resumenBatallas"));
   if (resumenBatallas) {
     Swal.fire({
@@ -136,12 +168,9 @@ function preguntarNombre(input){
   }
 
   if (!userLocalStorage){
-    console.log("No hay usuario en el localstorage");
     sweetAlert(`¿Estas seguro de guardar el nombre ${inputNombre.value}?`, guardarNombre);  
     return;
   } 
-  console.log("Si hay usuario en el localstorage");
-  console.log(userLocalStorage);
   inputNombre.value = userLocalStorage;
   guardarNombre()
 }
@@ -213,7 +242,6 @@ async function elegirTipo() {
   imgpoke.setAttribute("width", "150px");
   divImg.appendChild(imgpoke);
 
-  console.log("imgpoke", imgpokeapi);
 
   divElegir.style.display = "none";
 
@@ -233,7 +261,6 @@ async function elegirTipo() {
 }
 
 function tipomsg2() {
-  console.log("eleccionapi", eleccionapi);
   const divmensaje2 = document.createElement("DIV");
   divmensaje2.setAttribute("id", "divmensaje2");
   mainContent.appendChild(divmensaje2);
@@ -286,7 +313,6 @@ function asignarPowers() {
 
   let text = "<br>";
 
-  console.log(powers);
 
   powers.forEach((power) => {
     text += power + "<br>";
@@ -340,7 +366,7 @@ function pedirBatallas() {
 
 
 
-function aleatorio(input) {
+async function aleatorio(input) {
   if (validarVacio(input)){
     sweetAlertDinamic("error", "Campo vacio", "El numero de batallas no puede estar vacio")
     return;
@@ -348,9 +374,6 @@ function aleatorio(input) {
   peleas = inputBatallas.value;
   let peleasTotalActual = resumeBatles.total;
   resumeBatles.total = parseInt(peleas) + peleasTotalActual;
-
-
-
 
   let result;
 
@@ -370,18 +393,18 @@ function aleatorio(input) {
           resumeBatles.loses++;
           break;
       }
-    } , 2000 * index);
-
+      console.log(resumeBatles);
+      vict.textContent = `${resumeBatles.wins}`;
+      derr.textContent = `${resumeBatles.loses}`;
+      total.textContent = `${resumeBatles.total}`;
+    } , 6000 * index);
   }
-
-  console.log("resumeBatles", resumeBatles);
-  vict.textContent = `${resumeBatles.wins}`;
-  derr.textContent = `${resumeBatles.loses}`;
-  total.textContent = `${resumeBatles.total}`;
   guardarLocalStorage( "resumenBatallas" , resumeBatles);
   guardarLocalStorage( "username" , inputNombre.value);
 
 }
+
+
 
 function resultBatalla() {
   const result = Math.floor(Math.random() * 2) + 1;
@@ -389,19 +412,9 @@ function resultBatalla() {
 }
 
 function imprimirPantalla(index, resultado, result) {
-  const pBattle = document.createElement("P");
-  pBattle.setAttribute("id", `pBattle${index}`);
-  pBattle.innerHTML = `<hr><hr>
-    ${result === 1 ? "✔" : "❌"   } <br>
-    Tu <span class="fw-bold">${inputNombrePoke.value}</span> ha ${resultado} la batalla numero ${index + 1}
-  `;
-  if (result === 1) {
-    pBattle.classList.add("win");
-  } else {
-    pBattle.classList.add("lose");
-  }
-
-  divResultado.appendChild(pBattle);
+  const divImgResultado = document.createElement("DIV");
+  renderizarGif(eleccion, resultado, divImgResultado, index)
+  divResultado.appendChild(divImgResultado);
 }
 
 //!Funcion para extraer un aleatorio de un array
@@ -478,4 +491,54 @@ function validarVacio(input) {
   } else {
     return false;
   }
+}
+
+//! Funcion que renderiza el gif por batalla
+function renderizarGif(eleccion ,resultado, divPadre, index) {
+
+  const divGif = document.createElement("DIV");
+  divGif.setAttribute("id", `divGif${index}`);
+  const pBattle = document.createElement("P");
+  pBattle.setAttribute("id", `pBattle${index}`);
+  const pBatallando = document.createElement("P");
+  pBatallando.setAttribute("id", `pBatallando${index}`);
+  pBatallando.textContent = "En Pelea...";
+  pBatallando.style = "color: black; font-size: 20px;  text-align: center; font-family: Pokemon";
+  divPadre.appendChild(pBatallando);
+
+  const imgGif = document.createElement("IMG");
+  imgGif.setAttribute("alt", "gif");
+  imgGif.style = "width: 250px; height: 250px; display: block; margin-left: auto; margin-right: auto;";
+  divGif.appendChild(imgGif);
+
+  if ( eleccion === 1 ){
+    imgGif.setAttribute("src", objSquirtleImg.batleImg);
+    TimingGif(objSquirtleImg, resultado, index);
+  } else if ( eleccion === 2 ){
+    imgGif.setAttribute("src", objBulbasaurImg.batleImg);
+    TimingGif(objBulbasaurImg, resultado, index);
+  } else if ( eleccion === 3 ){
+    imgGif.setAttribute("src", objCharmanderImg.batleImg);
+    TimingGif(objCharmanderImg, resultado, index);
+  }
+
+  function TimingGif(obj , res, ind) {
+    setTimeout(() => {
+      if (res === "Ganado") {
+        imgGif.setAttribute("src", obj.winImg);
+        pBattle.classList.add("win");
+        pBatallando.remove();
+        pBattle.innerHTML = `Tu pokemon ha ganado la batalla numero ${ind + 1}`;
+      } else {
+        imgGif.setAttribute("src", obj.loseImg);
+        pBattle.classList.add("lose");
+        pBatallando.remove();
+        pBattle.innerHTML = `Tu pokemon ha perdido la batalla numero ${ind + 1}`;
+      }
+    } , 4000);
+  }
+
+
+  divPadre.appendChild(divGif);
+  divPadre.appendChild(pBattle);
 }
